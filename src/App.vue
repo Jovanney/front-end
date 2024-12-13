@@ -10,6 +10,8 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 
+import ScheduleEventsDataTable from '@/components/ScheduleEventsDataTable.vue'
+
 import Toaster from '@/components/ui/toast/Toaster.vue'
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
@@ -333,7 +335,9 @@ function setActiveTeam(team: (typeof data.teams)[number]) {
       </header>
 
       <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <div class="flex-1 rounded-xl bg-muted/50 min-h-min" />
+        <div class="flex-1 rounded-xl bg-muted/50 min-h-min flex justify-center items-center">
+          <div class="w-3/4"><ScheduleEventsDataTable /></div>
+        </div>
       </div>
     </SidebarInset>
     <Toaster />
