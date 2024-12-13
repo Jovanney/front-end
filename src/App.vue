@@ -10,6 +10,8 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 
+import Toaster from '@/components/ui/toast/Toaster.vue'
+
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 
 import CreateSceduleEventDialog from '@/components/CreateScheduleEventDialog.vue'
@@ -334,5 +336,6 @@ function setActiveTeam(team: (typeof data.teams)[number]) {
         <div class="flex-1 rounded-xl bg-muted/50 min-h-min" />
       </div>
     </SidebarInset>
+    <Toaster />
   </SidebarProvider>
 </template>

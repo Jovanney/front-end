@@ -20,10 +20,11 @@ import {
 } from '@/components/ui/form'
 
 import { Input } from '@/components/ui/input'
-import { toast } from '@/components/ui/toast'
+
 import { toTypedSchema } from '@vee-validate/zod'
-import { h } from 'vue'
+import { h, ref } from 'vue'
 import * as z from 'zod'
+import { useToast } from './ui/toast/use-toast'
 
 const formSchema = toTypedSchema(
   z.object({
@@ -32,6 +33,9 @@ const formSchema = toTypedSchema(
     phone: z.string().min(10).max(15),
   }),
 )
+const { toast } = useToast()
+
+const isCreateScheduleEventDialogOpen = ref(false)
 
 function onSubmit(values: any) {
   toast({
@@ -42,6 +46,11 @@ function onSubmit(values: any) {
       h('code', { class: 'text-white' }, JSON.stringify(values, null, 2)),
     ),
   })
+  isCreateScheduleEventDialogOpen.value = false
+}
+
+function onCancel() {
+  isCreateScheduleEventDialogOpen.value = false
 }
 </script>
 
@@ -90,7 +99,9 @@ function onSubmit(values: any) {
         </form>
 
         <DialogFooter>
-          <Button type="submit" form="dialogForm"> Save changes </Button>
+          <Button type="button" variant="secondary" @click="onCancel"> Cancelar </Button>
+
+          <Button type="submit" form="dialogForm" @click.stop> Salvar </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
