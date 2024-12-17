@@ -107,6 +107,7 @@ const columns = [
         Button,
         {
           variant: 'ghost',
+          class: 'px-0',
           onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
         },
         () => ['EMAIL', h(CaretSortIcon, { class: 'ml-2 h-4 w-4' })],
@@ -117,11 +118,32 @@ const columns = [
 
   columnHelper.accessor('name', {
     enablePinning: true,
-    header: 'Nome',
-    cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('name')),
+    header: ({ column }) => {
+      return h(
+        Button,
+        {
+          variant: 'ghost',
+          class: 'px-0',
+          onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
+        },
+        () => ['NAME', h(CaretSortIcon, { class: 'ml-2 h-4 w-4' })],
+      )
+    },
+    cell: ({ row }) => h('div', { class: 'capitalize text-start' }, row.getValue('name')),
   }),
   columnHelper.accessor('phone', {
-    header: () => h('div', { class: 'text-center' }, 'TELEFONE'),
+    header: ({ column }) => {
+      return h(
+        Button,
+
+        {
+          variant: 'ghost',
+          class: 'flex items-center justify-center w-full',
+          onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
+        },
+        () => ['PHONE', h(CaretSortIcon, { class: 'ml-2 h-4 w-4' })],
+      )
+    },
     cell: ({ row }) => {
       const phone: string = row.getValue('phone')
 
