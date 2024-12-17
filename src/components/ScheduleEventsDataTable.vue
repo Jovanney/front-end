@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type {
+  ColumnDef,
   ColumnFiltersState,
   ExpandedState,
   SortingState,
@@ -42,21 +43,80 @@ const { isPending, data } = useQuery({
   queryFn: fetchContacts,
 })
 
-const columnHelper = createColumnHelper<UserSchedule>()
-
-const columns = [
-  columnHelper.accessor('email', {
-    header: 'EMAIL',
+const columns: ColumnDef<UserSchedule>[] = [
+  {
+    id: 'select',
+    header: ({ table }) =>
+      h(Checkbox, {
+        checked:
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && 'indeterminate'),
+        'onUpdate:checked': (value) => table.toggleAllPageRowsSelected(!!value),
+        ariaLabel: 'Select all',
+      }),
+    cell: ({ row }) =>
+      h(Checkbox, {
+        checked: row.getIsSelected(),
+        'onUpdate:checked': (value) => row.toggleSelected(!!value),
+        ariaLabel: 'Select row',
+      }),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    accessorKey: 'email',
+    header: ({ column }) => {
+      return h(
+        Button,
+        {
+          variant: 'ghost',
+          onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
+        },
+        () => ['Email', h(CaretSortIcon, { class: 'h-4 w-4 ' })],
+      )
+    },
     cell: ({ row }) => h('div', { class: 'lowercase' }, row.getValue('email')),
-  }),
-  columnHelper.accessor('name', {
-    header: 'NOME',
-    cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('name')),
-  }),
-  columnHelper.accessor('phoneNumber', {
-    header: 'TELEFONE',
-    cell: ({ row }) => h('div', { class: 'text-left' }, row.getValue('phoneNumber')),
-  }),
+  },
+  {
+    accessorKey: 'name',
+    header: ({ column }) => {
+      return h(
+        Button,
+        {
+          variant: 'ghost',
+          onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
+        },
+        () => ['Name', h(CaretSortIcon, { class: 'ml-2 h-4 w-4' })],
+      )
+    },
+    cell: ({ row }) => h('div', { class: 'lowercase' }, row.getValue('name')),
+  },
+  {
+    accessorKey: 'phoneNumber',
+    header: ({ column }) => {
+      return h(
+        Button,
+        {
+          variant: 'ghost',
+          onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
+        },
+        () => ['Phone', h(CaretSortIcon, { class: 'ml-2 h-4 w-4' })],
+      )
+    },
+    cell: ({ row }) => h('div', { class: 'lowercase' }, row.getValue('phoneNumber')),
+  },
+  // {
+  //   id: 'actions',
+  //   enableHiding: false,
+  //   cell: ({ row }) => {
+  //     const payment = row.original
+
+  //     return h(DropdownAction, {
+  //       payment,
+  //       onExpand: row.toggleExpanded,
+  //     })
+  //   },
+  // },
 ]
 
 const sorting = ref<SortingState>([])
@@ -74,6 +134,17 @@ const table = useVueTable({
   onSortingChange: (updaterOrValue) => valueUpdater(updaterOrValue, sorting),
   onColumnFiltersChange: (updaterOrValue) => valueUpdater(updaterOrValue, columnFilters),
   onRowSelectionChange: (updaterOrValue) => valueUpdater(updaterOrValue, rowSelection),
+  state: {
+    get sorting() {
+      return sorting.value
+    },
+    get columnFilters() {
+      return columnFilters.value
+    },
+    get rowSelection() {
+      return rowSelection.value
+    },
+  },
 })
 </script>
 
@@ -122,6 +193,30 @@ const table = useVueTable({
           </TableRow>
         </TableBody>
       </Table>
+    </div>
+    <div class="flex items-center justify-end space-x-2 py-4">
+      <div class="flex-1 text-sm text-muted-foreground">
+        {{ table.getFilteredSelectedRowModel().rows.length }} of
+        {{ table.getFilteredRowModel().rows.length }} row(s) selected.
+      </div>
+      <div class="space-x-2">
+        <Button
+          variant="outline"
+          size="sm"
+          :disabled="!table.getCanPreviousPage()"
+          @click="table.previousPage()"
+        >
+          Previous
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          :disabled="!table.getCanNextPage()"
+          @click="table.nextPage()"
+        >
+          Next
+        </Button>
+      </div>
     </div>
   </div>
 </template>
