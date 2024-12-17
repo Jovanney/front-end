@@ -130,34 +130,6 @@ const activeTeam = ref(data.teams[0])
 function setActiveTeam(team: (typeof data.teams)[number]) {
   activeTeam.value = team
 }
-
-const baseURL = __API_PATH__
-
-const isLoading = ref(false)
-const message = ref('')
-
-async function fetchAPI() {
-  try {
-    // Set loading state to true
-    isLoading.value = true
-
-    // Send a GET request to the server
-    const response = await fetch(`${baseURL}/Contacts`)
-
-    // Parse the JSON response
-    const data = await response.json()
-
-    // Update the message with the response data
-    message.value = data.message
-  } catch (error) {
-    // Handle errors
-    message.value = 'Error fetching data'
-    console.error(error)
-  } finally {
-    // Reset loading state
-    isLoading.value = false
-  }
-}
 </script>
 
 <template>
@@ -346,7 +318,6 @@ async function fetchAPI() {
               </BreadcrumbList>
             </Breadcrumb>
             <div class="flex items-center gap-3">
-              <CreateSceduleEventDialog />
               <ThemeModeToggle />
             </div>
           </div>
@@ -356,13 +327,6 @@ async function fetchAPI() {
       <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div class="flex-1 rounded-xl bg-muted/50 min-h-min flex justify-center items-center">
           <div class="w-3/4">
-            <button @click="fetchAPI">Fetch</button>
-
-            <!-- Display loading message while fetching data -->
-            <p v-if="isLoading">Loading...</p>
-
-            <!-- Display the response message if available -->
-            <p v-else-if="message">{{ message }}</p>
             <ScheduleEventsDataTable />
           </div>
         </div>

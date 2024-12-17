@@ -17,11 +17,13 @@
   },
   "dependencies": {
     "@radix-icons/vue": "^1.0.0",
+    "@tanstack/vue-query": "^5.62.8",
     "@tanstack/vue-table": "^8.20.5",
     "@vee-validate/zod": "^4.14.7",
     "@vueuse/core": "^12.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "ky": "^1.7.3",
     "lucide-vue-next": "^0.468.0",
     "pinia": "^2.2.6",
     "radix-vue": "^1.9.11",

@@ -17,14 +17,17 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-
 import { Input } from '@/components/ui/input'
 
 import { toTypedSchema } from '@vee-validate/zod'
-import { h, ref } from 'vue'
+import { ref } from 'vue'
 import * as z from 'zod'
 import { useToast } from './ui/toast/use-toast'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import { createScheduleEvent } from '@/services/clientsService'
+import { Plus } from 'lucide-vue-next'
 
+// Validation schema
 const formSchema = toTypedSchema(
   z.object({
     username: z.string().min(2).max(50),
@@ -32,22 +35,53 @@ const formSchema = toTypedSchema(
     phone: z.string().min(10).max(15),
   }),
 )
+
 const { toast } = useToast()
 
 const isCreateScheduleEventDialogOpen = ref(false)
 
-function onSubmit(values: any) {
-  toast({
-    title: 'You submitted the following values:',
-    description: h(
-      'pre',
-      { class: 'mt-2 w-[340px] rounded-md bg-slate-950 p-4' },
-      h('code', { class: 'text-white' }, JSON.stringify(values, null, 2)),
-    ),
-  })
-  isCreateScheduleEventDialogOpen.value = false
+const queryClient = useQueryClient()
+
+const { mutate, isPending } = useMutation({
+  mutationFn: createScheduleEvent,
+  onMutate: () => {
+    toast({
+      title: 'Creating event...',
+      description: 'Please wait a moment.',
+    })
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries({
+      queryKey: ['scheduleEvents'],
+    })
+
+    // Close the dialog after success
+    isCreateScheduleEventDialogOpen.value = false
+    toast({
+      title: 'Event created!',
+      description: 'The event has been created successfully.',
+    })
+  },
+  onError: (error) => {
+    toast({
+      title: 'An error occurred',
+      description: error.message,
+      variant: 'destructive',
+    })
+  },
+})
+
+// Function to submit the form
+function onSubmit(values: Record<string, string>) {
+  const payload = {
+    name: values.username,
+    email: values.email,
+    phoneNumber: values.phone,
+  }
+  mutate(payload)
 }
 
+// Function to handle cancel button
 function onCancel() {
   isCreateScheduleEventDialogOpen.value = false
 }
@@ -55,11 +89,12 @@ function onCancel() {
 
 <template>
   <Form v-slot="{ handleSubmit }" as="" keep-values :validation-schema="formSchema">
-    <Dialog>
+    <Dialog v-model:open="isCreateScheduleEventDialogOpen">
       <DialogTrigger as-child>
-        <Button variant="outline"> Criar evento </Button>
+        <Button variant="outline"> <Plus /> Criar evento </Button>
       </DialogTrigger>
-      <DialogContent class="sm:max-w-[425px]">
+
+      <DialogContent class="w-5/6">
         <DialogHeader>
           <DialogTitle>Crie um novo evento no seu calendário</DialogTitle>
           <DialogDescription> Preencha as informações do usuário. </DialogDescription>
@@ -98,9 +133,11 @@ function onCancel() {
         </form>
 
         <DialogFooter>
-          <Button type="button" variant="secondary" @click="onCancel"> Cancelar </Button>
+          <Button :disabled="isPending" type="button" variant="secondary" @click="onCancel">
+            Cancelar
+          </Button>
 
-          <Button type="submit" form="dialogForm" @click.stop> Salvar </Button>
+          <Button :loading="isPending" type="submit" form="dialogForm"> Salvar </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
