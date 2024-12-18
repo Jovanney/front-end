@@ -27,12 +27,27 @@ import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { createScheduleEvent } from '@/services/clientsService'
 import { Plus } from 'lucide-vue-next'
 
-// Validation schema
 const formSchema = toTypedSchema(
   z.object({
-    username: z.string().min(2).max(50),
-    email: z.string().email(),
-    phone: z.string().min(10).max(15),
+    username: z
+      .string()
+      .min(2, {
+        message: 'Name must be at least 2 characters long',
+      })
+      .max(50, {
+        message: 'Name must be at most 50 characters long',
+      }),
+    email: z.string().email({
+      message: 'Invalid email address',
+    }),
+    phone: z
+      .string()
+      .min(10, {
+        message: 'Phone number must be at least 10 characters long',
+      })
+      .max(15, {
+        message: 'Phone number must be at most 15 characters long',
+      }),
   }),
 )
 
@@ -55,7 +70,6 @@ const { mutate, isPending } = useMutation({
       queryKey: ['scheduleEvents'],
     })
 
-    // Close the dialog after success
     isCreateScheduleEventDialogOpen.value = false
     toast({
       title: 'Event created!',
@@ -71,7 +85,6 @@ const { mutate, isPending } = useMutation({
   },
 })
 
-// Function to submit the form
 function onSubmit(values: Record<string, string>) {
   const payload = {
     name: values.username,
@@ -81,14 +94,13 @@ function onSubmit(values: Record<string, string>) {
   mutate(payload)
 }
 
-// Function to handle cancel button
 function onCancel() {
   isCreateScheduleEventDialogOpen.value = false
 }
 </script>
 
 <template>
-  <Form v-slot="{ handleSubmit }" as="" keep-values :validation-schema="formSchema">
+  <Form v-slot="{ handleSubmit }" :validation-schema="formSchema">
     <Dialog v-model:open="isCreateScheduleEventDialogOpen">
       <DialogTrigger as-child>
         <Button variant="outline"> <Plus /> Criar evento </Button>
@@ -103,7 +115,7 @@ function onCancel() {
         <form class="flex flex-col gap-3" id="dialogForm" @submit="handleSubmit($event, onSubmit)">
           <FormField v-slot="{ componentField }" name="username">
             <FormItem>
-              <FormLabel>Nome</FormLabel>
+              <FormLabel>Nome *</FormLabel>
               <FormControl>
                 <Input type="text" placeholder="shadcn" v-bind="componentField" />
               </FormControl>
@@ -113,7 +125,7 @@ function onCancel() {
 
           <FormField v-slot="{ componentField }" name="email">
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Email *</FormLabel>
               <FormControl>
                 <Input type="email" placeholder="email" v-bind="componentField" />
               </FormControl>
@@ -123,7 +135,7 @@ function onCancel() {
 
           <FormField v-slot="{ componentField }" name="phone">
             <FormItem>
-              <FormLabel>Telefone</FormLabel>
+              <FormLabel>Telefone *</FormLabel>
               <FormControl>
                 <Input type="text" placeholder="telefone" v-bind="componentField" />
               </FormControl>
