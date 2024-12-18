@@ -31,6 +31,7 @@ import { computed, h, ref } from 'vue'
 import { cn, valueUpdater } from '@/lib/utils'
 import { useQuery } from '@tanstack/vue-query'
 import { fetchContacts } from '@/services/clientsService'
+import { useDebounce } from '@/composables/useDebounce'
 
 export interface UserSchedule {
   name: string
@@ -38,9 +39,12 @@ export interface UserSchedule {
   phoneNumber: string
 }
 
+const search = ref<string>('')
+const debouncedSearch = useDebounce(search, 500)
+const queryKey = computed(() => ['scheduleEvents', debouncedSearch.value])
 const { isPending, data } = useQuery({
-  queryKey: ['scheduleEvents'],
-  queryFn: fetchContacts,
+  queryKey: queryKey,
+  queryFn: () => fetchContacts(debouncedSearch.value),
 })
 
 const columns: ColumnDef<UserSchedule>[] = [
@@ -122,7 +126,6 @@ const columns: ColumnDef<UserSchedule>[] = [
 const sorting = ref<SortingState>([])
 const columnFilters = ref<ColumnFiltersState>([])
 const rowSelection = ref({})
-
 const tableData = computed(() => data.value || [])
 
 const table = useVueTable({
@@ -138,9 +141,7 @@ const table = useVueTable({
     get sorting() {
       return sorting.value
     },
-    get columnFilters() {
-      return columnFilters.value
-    },
+
     get rowSelection() {
       return rowSelection.value
     },
@@ -151,12 +152,7 @@ const table = useVueTable({
 <template>
   <div class="w-full">
     <div class="flex gap-2 items-center justify-between py-4">
-      <Input
-        class="max-w-sm"
-        placeholder="Filter emails..."
-        :model-value="table.getColumn('email')?.getFilterValue() as string"
-        @update:model-value="table.getColumn('email')?.setFilterValue($event)"
-      />
+      <Input class="max-w-sm" placeholder="Filter emails..." v-model="search" />
       <CreateSceduleEventDialog />
     </div>
 

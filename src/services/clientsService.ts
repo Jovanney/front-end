@@ -6,8 +6,13 @@ export interface UserSchedule {
   email: string
 }
 
-export const fetchContacts = async (): Promise<UserSchedule[]> => {
-  const response = await apiClient.get('Contacts').json<UserSchedule[]>()
+export const fetchContacts = async (search?: string): Promise<UserSchedule[]> => {
+  const response = await apiClient
+    .get('Contacts', {
+      searchParams: search ? { search } : undefined,
+    })
+    .json<UserSchedule[]>()
+
   return response
 }
 
