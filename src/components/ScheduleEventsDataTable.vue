@@ -32,8 +32,10 @@ import { cn, valueUpdater } from '@/lib/utils'
 import { useQuery } from '@tanstack/vue-query'
 import { fetchContacts } from '@/services/clientsService'
 import { useDebounce } from '@/composables/useDebounce'
+import DataTableDropDown from './DataTableDropDown.vue'
 
 export interface UserSchedule {
+  id: string
   name: string
   email: string
   phoneNumber: string
@@ -109,18 +111,15 @@ const columns: ColumnDef<UserSchedule>[] = [
     },
     cell: ({ row }) => h('div', { class: 'lowercase' }, row.getValue('phoneNumber')),
   },
-  // {
-  //   id: 'actions',
-  //   enableHiding: false,
-  //   cell: ({ row }) => {
-  //     const payment = row.original
-
-  //     return h(DropdownAction, {
-  //       payment,
-  //       onExpand: row.toggleExpanded,
-  //     })
-  //   },
-  // },
+  {
+    id: 'actions',
+    cell: ({ row }) =>
+      h(DataTableDropDown, {
+        client: {
+          id: row.original.id,
+        },
+      }),
+  },
 ]
 
 const sorting = ref<SortingState>([])
